@@ -1,0 +1,30 @@
+---
+title: "Intro to ggplot2"
+author: "Jim Albert"
+date: "8/2/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Getting Started with ggplot2
+
+First I load in the ggplot2 package.
+```{r}
+library(ggplot2)
+```
+
+Here is an example of a scatterplot using the famous Old Faithful Geyser dataset stored in the data frame faithful.
+
+- One indicates that we are using the data frame faithful.
+- The geom_point() function indicates we are using a point geometric object.
+- By use of the aes(), we indicate that the x variable is eruptions and the y variable is waiting.
+
+```{r}
+ggplot(faithful) +
+  geom_point(mapping = aes(x = eruptions, y = waiting))
+```
+
+
