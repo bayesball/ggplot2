@@ -26,5 +26,11 @@ Here is an example of a scatterplot using the famous Old Faithful Geyser dataset
 ggplot(faithful) +
   geom_point(mapping = aes(x = eruptions, y = waiting))
 ```
-
+ 
+ Experiment with some math:
+ 
+ $$
+\frac{W}{L} = \left(\frac{R}{RA}\right)^k
+$$
+ 
 
