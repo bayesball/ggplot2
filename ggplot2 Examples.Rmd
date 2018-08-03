@@ -1,0 +1,103 @@
+---
+title: "Some ggplot2 Graphs"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+# Introduction:  Movies dataset
+
+This markdown file illustrates some basic graphs produced using the ggplot2 package.  We illustrate these graphs for some movie data.
+The package ggplot2movies contains data on 28,819 movies from the Internet Movie Database (imdb.com).  Here are the variables:
+
+- title. Title of the movie.
+
+- year. Year of release.
+
+- budget. Total budget (if known) in US dollars
+
+- length. Length in minutes.
+
+- rating. Average IMDB user rating.
+
+- votes. Number of IMDB users who rated this movie.
+
+- r1-10. Multiplying by ten gives percentile (to nearest 10%) of users who rated this movie a 1.
+
+- mpaa. MPAA rating.
+
+- action, animation, comedy, drama, documentary, romance, short. Binary variables representing if movie was classified as belonging to that genre.
+
+I load this package and the tidyverse suite of packages that includes ggplot2.  We focus on a sample of 1000 of these movies that is put in the data frame movies_sample.
+
+```{r}
+library(tidyverse)
+library(ggplot2movies)
+set.seed(1234)
+movies_sample <- sample_n(movies, 1000)
+```
+
+# One categorical variable
+
+We use the cut function to creat a new categorical variable era based on the year variable.
+
+```{r}
+movies_sample %>% mutate(era = cut(year, 
+          breaks = c(1890, 1959, 1979, 1999, 2006),
+          labels = c("before 1960", "60s-70s", "80s-90s", 
+                     "2000 or later"))) ->
+  movies_sample
+```
+
+A bar graph of era is constructed using the geom_bar geom.  In this sample, the largest number of movies were made in the 80's-90's.
+
+```{r}
+ggplot(movies_sample) +
+  geom_bar(mapping = aes(era))
+```
+
+# One numeric variable
+
+How long are these movies?  We construct a histogram of the lengths (minutes) of these movies using the geom_histogram geom.  Interestingly, we see two clusters -- a large cluster centered about 90 minutes and a smaller cluster of shorter movies.
+
+```{r}
+ggplot(movies_sample) +
+  geom_histogram(mapping = aes(length))
+```
+
+An alternative geom, geom_density, constructs and displays a density estimate of the movie lengths.
+
+```{r}
+ggplot(movies_sample) +
+  geom_density(mapping = aes(length))
+```
+
+# Relationship between one categorical and one numeric variables
+
+Has the length of the movie changed acrossed eras?  One can construct parallel boxplots where x (the categorical variable) is era and y (the response) is movie length.   On the average, movies seem to be a little longer, on average, in the 60s-70s and 80s-90s.
+
+```{r}
+ggplot(movies_sample) +
+  geom_boxplot(mapping = aes(era, length))
+```
+
+An alternative way to graphically compare groups is by plotting points -- the geom_jitter function is used to avoid the overplotting of points.  This graph shows that there are many short movies of lengths 10 minutes or less.
+
+
+```{r}
+ggplot(movies_sample) +
+  geom_jitter(mapping = aes(era, length))
+```
+
+# Relationship between two numeric variables
+
+How has the average IMDB movie rating changed across years?  A scatterplot of year and rating is constructed by the geom_point geometric object.  The general pattern is assessed by drawing a lowess smooth on top of the scatterplot.  It is interesting that the older movies between 1930 and 1950 are rated higher than the movies between 1970 and 1990.
+
+```{r}
+ggplot(movies_sample) +
+  geom_point(mapping = aes(year, rating)) +
+  geom_smooth(mapping = aes(year, rating), method = "loess")
+```
+
