@@ -1,0 +1,137 @@
+---
+title: "Aesthetic mappings, facets"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+# Including a new variable
+
+There are a number of ways of include a new variable in the graph by assigning this new variable a different role or aesthetic.  In this document, we will illustrate using color, shape, size, and facets to reflect a third variable in the graph.
+
+Let's return to our movies dataset.  Recall the variables included year, budget, length, rating, votes, mpaa rating, and indicators for different genre.
+
+Here we focus only on the movies that were released in 1990 or later.
+
+
+```{r}
+library(tidyverse)
+library(ggplot2movies)
+movies_late <- filter(movies, 
+                      year >= 1990,
+                      votes >= 40000)
+```
+
+# Relationship between votes and rating
+
+We start by constructing a scatterplot that explores the relationship between the number of votes of a movie and its average rating.  We see a positive association -- more popular movies (measured by number of votes) tend to get higher ratings.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating))
+```
+
+# The Color aesthetic
+
+One can put a third variable on the graph by assigning this new variable a different aesthetic such as color, shape, or size.  The Action variable indicates by a 0 or 1 if the movie can be categorized as an action flick.  Here by assigning color to the Action variable, the Action movies are colored in blue.  It does appear that some of the most popular movies (high number of votes) are Action type.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating,
+                           color = Action))
+```
+
+If we do a similar thing for the Animation movies, we get a different message -- the most popular movies tend not to be animation.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating,
+                           color = Animation))
+```
+
+Similarly, we see that Comedy movies tend not to be the most popular.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating,
+                           color = Comedy))
+```
+
+# The Shape aesethetic
+
+Other type of aesethics can be used for a third variable.  Below we first create a new variable Type that indicates if the movie can be categorized as comedy or not.  Then we redraw the scatterplot where the shape aesethetic is Type.
+
+```{r}
+movies_late %>% mutate(Type = ifelse(Comedy==1,
+                                     "comedy", "noncomedy")) ->
+                        movies_late
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating,
+                           shape = Type))
+```
+
+# The Size aesthetic 
+
+Alternatively, we can reflect the third variable by using the size aesthetic.  Here the comedy and non-comedy movies are drawn using plotting points of different size.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating,
+                           size = Type))
+```
+
+# Using Facets
+
+One nice feature of the ggplot2 system is the ease of using different panels or facets where the different panels are determined by the value of a new variable.
+
+Here we use two panels to show the relationship of votes and rating for the comedy and non-comedy movies.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating)) +
+  facet_wrap(~ Type)
+```
+
+# Adding Text labels
+
+Another way to add another variable to the graph is by labeling the points with the value of a new variable.
+
+Here I label each point in the scatterplot with the movie title.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating)) +
+  geom_text(aes(votes, rating, label = title))
+```
+
+Clearly this doesn't work well, since all of the movie titles overlap and there is too much clutter.
+
+Maybe I will label only the movies that are distinctive.  And I will use a function from the ggrepel package that will try to plot labels that don't overlap.
+
+```{r}
+library(ggrepel)
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating)) +
+  geom_text_repel(data = filter(movies_late,
+                          votes > 120000),
+            aes(votes, rating, label = title))
+```
+
+# One caution
+
+In these examples, we are using a variable to indicate color, shape, or size and we do this within the aes() function.  It is also possible to use color, shape, or size to change the appearance of a graph but these changes are outside of the aesthetic function.  
+
+Here is a simple example where I draw the points using triangles (shape = 2) and in brown, and I overlay a smoothing curve in orange.
+
+```{r}
+ggplot(movies_late) +
+  geom_point(mapping = aes(votes, rating),
+             color = "brown",
+             size = 4,
+             shape = 2) +
+  geom_smooth(mapping = aes(votes, rating),
+              method = "loess",
+              color = "orange")
+```
