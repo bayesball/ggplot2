@@ -1,0 +1,119 @@
+---
+title: "Graphing Beatles Song Durations"
+author: "Jim Albert"
+date: "8/30/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+![](pepper.jpg)
+
+## Some Background
+
+As you may know, I have always been a fan of The Beatles.  In fact the second album I purchased in my life was "Sgt Pepper's Lonely Hearts Club Band".
+
+The Beatles are still very popular and I recently found an interesting site by Aaron Krerowicz at https://www.aaronkrerowicz.com/beatles-blog/its-been-a-long-long-long-time-duration-in-beatles-songs  who is studying the group.  From this site, I downloaded some data which provides the listing and duration of every Beatles song.
+
+## The Data
+
+The dataset can found on my Github account at
+
+https://github.com/bayesball/ComputingWithData/blob/master/beatles_songs_durations.csv
+
+I download the raw (csv) version of the data here.
+
+```{r}
+library(tidyverse)
+Beatles <- read_csv("https://raw.githubusercontent.com/bayesball/ComputingWithData/master/beatles_songs_durations.csv")
+```
+
+## The First Graph
+
+I'm interested in seeing how the duration of Beatles' songs changed over time, so I start with constructing a scatterplot of Year and Length.  By the way, I illustrate saving a graphics file -- the variable p contains the graph object and the ggsave function will save it as a png file -- I can adjust the height and width of the saved file in the function.
+
+```{r}
+(p <- ggplot(Beatles, aes(Year, Length)) +
+  geom_point())
+ggsave("firstplot.png", p,
+       width = 5, height = 3, units = "in")
+```
+
+I am disappointed in the display for several reasons.
+
+1.  There is overplotting so it is difficult to see the individual song lengths.
+
+2.  This graph has little documentation -- it is unclear what "Length" means, the unit of measurement is unknown, and a title would be nice.
+
+## The Second Graph
+
+I fix the overplotting issue by jittering the points.  As I am doing this, I illustrate using a different plotting point color and shape.
+
+```{r}
+ggplot(Beatles, aes(Year, Length)) +
+  geom_jitter(width = 0.2, color = "red", shape = 8)
+```
+
+I think the overplotting problem is corrected in the new graph.
+
+## The Third Graph
+
+When I look at the display, several things come to mind:
+
+1.  In the early days of the Beatles the songs were shorter, in the later years the song lengths were more variable.  Thinking about it, I think it would be useful to label the two periods -- 1962-1966 were the "touring years" where the Beatles performed live, and 1967 and later were the studio years where the Beatles only performed in the recording studio.
+
+2.  I see some unusually long songs -- it would be nice to label these points with the song titles.
+
+This next graph shows the two Beatles periods and labels three interesting long songs.
+
+```{r}
+ggplot(Beatles, aes(Year, Length)) +
+  geom_jitter(width = 0.2, color = "red", shape = 8) +
+  geom_label(data = filter(Beatles, Length > 400),
+             aes(label = Title)) +
+  geom_vline(xintercept = 1966.5) +
+  annotate(geom = "text", x = 1964, y = 400,
+           label = "Touring Years",
+           color = "blue", size = 7) +
+  annotate(geom = "text", x = 1969, y = 350,
+           label = "Studio Years",
+           color = "blue", size = 7)
+```
+
+## The Fourth Graph
+
+Okay, we are getting closer to a good graph.  Last group of improvements ...
+
+1.  I add a more descriptive label to the y axis.
+
+2.  I add a plot title (by using the theme function I change the size and justification of the title)
+
+```{r}
+library(ggrepel)
+ggplot(Beatles, aes(Year, Length)) +
+  geom_jitter(width = 0.2, color = "red", shape = 8) +
+  geom_label_repel(data = 
+                     filter(Beatles, Length > 400),
+             aes(label = Title)) +
+  geom_vline(xintercept = 1966.5) +
+  annotate(geom = "text", x = 1964, y = 400,
+           label = "Touring Years",
+           color = "blue", size = 7) +
+  annotate(geom = "text", x = 1969, y = 350,
+           label = "Studio Years",
+           color = "blue", size = 7) +
+  ylab("Song Length (seconds)") +
+  ggtitle("Lengths of Beatles Songs from 1962 to 1970") +
+  theme(plot.title = element_text(colour = "red", 
+                                  size = 18, 
+                                  hjust = 0.5))
+  
+```
+
+## Am I Done?
+
+I suppose if I look at my current graph tomorrow, I will think of further improvements.  For example, people might think of song lengths in terms of minutes rather than seconds, so maybe I could reexpress the song lengths in minutes.  Or maybe I could draw some horizontal lines indicating 2 minutes, 3 minutes, etc.  The point is that some further improvements may be desired when you construct any graph.
