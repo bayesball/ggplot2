@@ -11,8 +11,6 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 ```
 
-![](pepper.jpg)
-
 ## Some Background
 
 As you may know, I have always been a fan of The Beatles.  In fact the second album I purchased in my life was "Sgt Pepper's Lonely Hearts Club Band".
